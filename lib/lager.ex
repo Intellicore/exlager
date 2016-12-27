@@ -52,6 +52,14 @@ defmodule Lager do
   defp num_to_level(_), do: nil
 
   defp log(level, format, args, caller) do
+    log(should_log(level), level, format, args, caller)
+  end
+
+  defp log(false, _level, _format, _args, _caller) do
+    nil
+  end
+
+  defp log(true, level, format, args, caller) do
     {name, _arity} = caller.function || {:unknown, 0}
     module = caller.module || :unknown
     format =
@@ -60,9 +68,7 @@ defmodule Lager do
       else
         format
       end
-    if should_log(level) do
-      dispatch(level, module, name, caller.line, format, args)
-    end
+    dispatch(level, module, name, caller.line, format, args)
   end
 
   defp dispatch(level, module, name, line, format, args) do
