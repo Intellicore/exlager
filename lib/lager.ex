@@ -23,6 +23,12 @@ defmodule Lager do
     none:      -1
   ]
 
+  nowarn_list = Enum.map(levels, fn {level, _num} -> [{:nowarn_function, [level, 1]}, {:nowarn_function, [level, 2]}] end)
+  |> List.flatten
+  quoted = quote do
+    @dialyzer unquote(nowarn_list)
+  end
+  Module.eval_quoted __MODULE__, quoted, [], __ENV__
   quoted = for {level, _num} <- levels do
     quote do
       defmacro unquote(level)(message) do
